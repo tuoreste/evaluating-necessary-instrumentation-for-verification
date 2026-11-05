@@ -68,4 +68,7 @@ Testing/
 .cache/
 
 # additional gitignores in our project
-external/
+external/*
+
+.DS_Store
+
