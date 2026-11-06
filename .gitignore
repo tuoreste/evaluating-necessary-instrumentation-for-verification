@@ -69,3 +69,5 @@ Testing/
 
 # external dependencies, cloned locally
 external/
+docker/CoVer.Dockerfile
+cover-build.log
