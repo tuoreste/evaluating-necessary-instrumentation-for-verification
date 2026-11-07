@@ -67,7 +67,7 @@ vcpkg_installed/
 Testing/
 .cache/
 
-# external dependencies, cloned locally
+# external dependencies
 external/
-docker/CoVer.Dockerfile
+docker/
 cover-build.log
