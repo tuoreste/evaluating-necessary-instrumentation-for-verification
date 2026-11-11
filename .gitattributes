@@ -1,0 +1,12 @@
+#Store all text files with Linux line endings (LS) and check them out with LF
+#on every system (Mac, Linux, Windows/WSL), regardless of personal Git settings.
+* text=auto eol=lf
+
+#Binary files: never convert or diff them as text
+*.pdf       binary
+*.png       binary
+*.jpg       binary
+*.bc        binary
+*.o         binary
+*.so        binary
+*.tar.gz    binary

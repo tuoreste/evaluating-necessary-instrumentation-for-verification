@@ -71,3 +71,4 @@ external/
 docker/
 .DS_Store
 cover-build.log
+CoVerCoverage_*
