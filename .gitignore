@@ -66,3 +66,8 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# additional gitignores in our project
+external/*
+docker/
+.DS_Store
