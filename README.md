@@ -67,3 +67,4 @@ CoVerCXX --predefined-contracts --instrument-contracts=full tests/mpi_smoke.cpp 
 mpiexec -n 2 /tmp/mpi_cover
 
 ```
+
