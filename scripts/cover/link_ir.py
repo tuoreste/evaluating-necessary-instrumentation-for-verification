@@ -15,6 +15,8 @@ import subprocess #python std lib to run external programs or shell commands
 
 import tempfile
 
+import os
+
 def run(command: list[object]) -> None:
     """Print and execute an external command."""
     command = [str(part) for part in command]
@@ -72,7 +74,8 @@ def main() -> None:
             ]
         )
 
-        cover_prefix = Path("/opt/cover")
+        # cover_prefix = Path("/opt/cover")
+        cover_prefix = Path(os.environ.get("COVER_PREFIX", "/opt/cover"))
 
         run(
             [
