@@ -28,6 +28,13 @@ def main() -> None:
     parser.add_argument("ir_file", type=Path, help="Input .ll file")
     parser.add_argument("program", type=Path, help="Output executable")
 
+    parser.add_argument(
+        "--linker",
+        choices=("mpicc", "mpicxx"),
+        default="mpicc",
+        help="MPI linker to use (default: mpicc)",
+    )
+
     args = parser.parse_args()
 
     # print(f"IR file: {args.ir_file}")
@@ -69,7 +76,7 @@ def main() -> None:
 
         run(
             [
-                "mpicc",                     # MPI-aware linker
+                args.linker,                     # MPI-aware linker
                 "-fPIC",
                 "-g",
                 object_file,
