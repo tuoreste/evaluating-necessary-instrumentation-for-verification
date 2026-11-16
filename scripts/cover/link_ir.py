@@ -15,8 +15,25 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    print(f"IR file: {args.ir_file}")
-    print(f"Program: {args.program}")
+    # print(f"IR file: {args.ir_file}")
+    # print(f"Program: {args.program}")
+
+    """
+    resolve(): converts messy or relative paths into clean, \
+    canonical absolute paths by interacting directly with \
+    the operating system's file system
+    """
+    ir_file = args.ir_file.resolve()
+    program = args.program.resolve()
+
+    if not ir_file.is_file(): #we do not want to call llvm with missing input
+        parser.error(f"IR file does not exist: {ir_file}")
+
+    if ir_file.suffix != ".ll": #has to be specifically text llvm ir
+        parser.error(f"Expected a .ll file: {ir_file}")
+
+    print(f"IR file: {ir_file}")
+    print(f"Program: {program}")
 
 
 if __name__ == "__main__":
