@@ -13,6 +13,8 @@ used to parse and split strings using Unix shell-like syntax
 import shlex
 import subprocess #python std lib to run external programs or shell commands
 
+import tempfile
+
 def run(command: list[object]) -> None:
     """Print and execute an external command."""
     command = [str(part) for part in command]
@@ -48,42 +50,47 @@ def main() -> None:
     print(f"IR file: {ir_file}")
 
     program.parent.mkdir(parents=True, exist_ok=True)
-    object_file = Path(f"{program}.o")
+    # object_file = Path(f"{program}.o")
+    with tempfile.TemporaryDirectory(prefix="cover-link-") as temp_directory:
+        object_file = Path(temp_directory) / "program.o"
 
-    run(
-        [
-            "llc",                      #llvm ir compiler
-            "-filetype=obj",            #obj file not assembly
-            "--relocation-model=pic",   #gen pos indep machine code, allows to later avoid linking problem since we are copiling native lang like c
-            ir_file,
-            "-o",
-            object_file,                #generated obj file
-        ]
-    )
+        run(
+            [
+                "llc",                      #llvm ir compiler
+                "-filetype=obj",            #obj file not assembly
+                "--relocation-model=pic",   #gen pos indep machine code, allows to later avoid linking problem since we are copiling native lang like c
+                ir_file,
+                "-o",
+                object_file,                #generated obj file
+            ]
+        )
 
-    cover_prefix = Path("/opt/cover")
+        cover_prefix = Path("/opt/cover")
 
-    run(
-        [
-            "mpicc",                     # MPI-aware linker
-            "-fPIC",
-            "-g",
-            object_file,
-            "-lm",
-            "-ldl",
-            "-lffi",
-            "-lpthread",
-            "-Wl,--whole-archive",
-            cover_prefix / "lib/libCoVerDynamicAnalyzer.a",
-            "-Wl,--no-whole-archive",
-            "-lstdc++",
-            cover_prefix / "lib/libCoVerIntrinsics.a",
-            "-o",
-            program,                     # Generated exe
-        ]
-    )
+        run(
+            [
+                "mpicc",                     # MPI-aware linker
+                "-fPIC",
+                "-g",
+                object_file,
+                "-lm",
+                "-ldl",
+                "-lffi",
+                "-lpthread",
+                "-Wl,--whole-archive",
+                cover_prefix / "lib/libCoVerDynamicAnalyzer.a",
+                "-Wl,--no-whole-archive",
+                "-lstdc++",
+                cover_prefix / "lib/libCoVerIntrinsics.a",
+                "-o",
+                program,                     # Generated exe
+            ]
+        )
 
     print(f"Program: {program}")
 
 if __name__ == "__main__":
     main()
+
+
+
