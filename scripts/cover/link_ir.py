@@ -6,6 +6,19 @@ argparse reads cmd-line arguments
 import argparse
 from pathlib import Path
 
+"""
+shell lexical analysis(shlex):Python standard library module \
+used to parse and split strings using Unix shell-like syntax
+"""
+import shlex
+import subprocess #python std lib to run external programs or shell commands
+
+def run(command: list[object]) -> None:
+    """Print and execute an external command."""
+    command = [str(part) for part in command]
+    print("+", shlex.join(command))
+    subprocess.run(command, check=True)
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Turn CoVer-instrumented LLVM IR into an executable."
@@ -33,8 +46,22 @@ def main() -> None:
         parser.error(f"Expected a .ll file: {ir_file}")
 
     print(f"IR file: {ir_file}")
-    print(f"Program: {program}")
 
+    program.parent.mkdir(parents=True, exist_ok=True)
+    object_file = Path(f"{program}.o")
+
+    run(
+        [
+            "llc",                      #llvm ir compiler
+            "-filetype=obj",            #obj file not assembly
+            "--relocation-model=pic",   #gen pos indep machine code, allows to later avoid linking problem since we are copiling native lang like c
+            ir_file,
+            "-o",
+            object_file,                #generated obj file
+        ]
+    )
+
+    print(f"Object file: {object_file}")
 
 if __name__ == "__main__":
     main()
