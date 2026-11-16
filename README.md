@@ -1,6 +1,22 @@
 # mpi-verification-instrumentation
 A tool for evaluating and verifying necessary instrumentation in MPI applications.
 
+# project structure
+
+```text
+.github/            issue and PR templates
+documents/
+  notes/            learning material (LLVM IR, MPI, practice files)
+  meetings/         one file per supervisor meeting
+  proposal/         project proposal (PDF)
+tests/              MPI test programs (buggy + correct versions)
+scripts/            automation (minimization, driver)
+  cover/            CoVer helper scripts (keep IR, rebuild from IR)
+pass/               our LLVM pass
+results/            outputs of the scripts
+external/           CoVer and MPI-BugBench clones (not committed)
+```
+
 # setup
 Everything runs inside a Docker container with LLVM 22, OpenMPI and CoVer, so the setup is the same on every system. The first build compiles OpenMPI and CoVer and takes about 30-60 minutes.
 
