@@ -61,7 +61,29 @@ def main() -> None:
         ]
     )
 
-    print(f"Object file: {object_file}")
+    cover_prefix = Path("/opt/cover")
+
+    run(
+        [
+            "mpicc",                     # MPI-aware linker
+            "-fPIC",
+            "-g",
+            object_file,
+            "-lm",
+            "-ldl",
+            "-lffi",
+            "-lpthread",
+            "-Wl,--whole-archive",
+            cover_prefix / "lib/libCoVerDynamicAnalyzer.a",
+            "-Wl,--no-whole-archive",
+            "-lstdc++",
+            cover_prefix / "lib/libCoVerIntrinsics.a",
+            "-o",
+            program,                     # Generated exe
+        ]
+    )
+
+    print(f"Program: {program}")
 
 if __name__ == "__main__":
     main()
