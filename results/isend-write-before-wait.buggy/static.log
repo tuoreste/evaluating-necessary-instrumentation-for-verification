@@ -1,0 +1,17 @@
+Running Contract Manager on Module: /tmp/cover-ir-r29mdkht/input.bc
+CoVer: Parsed contracts after 0.004193347s
+## Contract violation detected! ##
+--> Function: MPI_Isend
+--> Contract: CONTRACT{PRE { call_tag!(mpi_init) MSG "Missing Initialization call", param!(5:^=MPI_COMM_WORLD,!=NULL,!=MPI_COMM_NULL) MSG "Communicator is invalid", param!(0:!=NULL,!=MPI_IN_PLACE,!=MPI_BOTTOM) MSG "Parameter is null, MPI_IN_PLACE, or MPI_BOTTOM", alloc!(0) MSG "Buffer is not allocated", param!(4:!=MPI_ANY_TAG,>=0) MSG "Tag is invalid" } POST { call_tag!(mpi_exit) MSG "Missing Finalization call", (no! (call_tag!(request_gen,$:6)) until! (call_tag!(req_complete,$:6)) | no! (call_tag!(request_gen,$:6)) until! (call_tag!(req_complete_noidx))) MSG "Double Request Use", (call_tag!(req_complete,$:6) | call_tag!(req_complete_noidx)) MSG "Request Leak", (no! (write!(*0)) until! (call_tag!(req_complete,$:6)) | no! (write!(*0)) until! (call_tag!(req_complete_noidx))) MSG "Local Data Race - Local write", (no! (call_tag!(buf_write,$:0)) until! (call_tag!(req_complete,$:6)) | no! (call_tag!(buf_write,$:0)) until! (call_tag!(req_complete_noidx))) MSG "Local Data Race - Local write by call" } TAGS { request_gen(6), buf_read(0), type_use(2) }}
+--> Postcondition Subformula Status: Violated
+    --> Formula String: (no!(write!(*0))until!(call_tag!(req_complete,$:6))|no!(write!(*0))until!(call_tag!(req_complete_noidx)))MSG"Local Data Race - Local write"
+    --> Message: Local Data Race - Local write
+    --> Error Info:
+        No children satisfied for subformula: (no!(write!(*0))until!(call_tag!(req_complete,$:6))|no!(write!(*0))until!(call_tag!(req_complete_noidx)))MSG"Local Data Race - Local write"
+        Error Info for child: no!(write!(*0))until!(call_tag!(req_complete,$:6))
+        Found store at /workspace/tests/data-race-write/isend-write-before-wait.buggy.c:16:13 which is in conflict with MPI_Isend at /workspace/tests/data-race-write/isend-write-before-wait.buggy.c:15:9 before release
+        Error Info for child: no!(write!(*0))until!(call_tag!(req_complete_noidx))
+        Found store at /workspace/tests/data-race-write/isend-write-before-wait.buggy.c:16:13 which is in conflict with MPI_Isend at /workspace/tests/data-race-write/isend-write-before-wait.buggy.c:15:9 before release
+
+CoVer: Total Tool Runtime 0.008282s
+
