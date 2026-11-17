@@ -25,6 +25,25 @@ def run(command: list[object], log_file: Path | None = None,) -> None:
                 stderr=subprocess.STDOUT,
             )
 
+def count_callbacks(ir_file: Path) -> dict[str, int]:
+    """Count CoVer callback calls in textual LLVM IR."""
+    lines = ir_file.read_text().splitlines()
+
+    return {
+        "function": sum(
+            "call " in line and "@PPDCV_FunctionCallback" in line
+            for line in lines
+        ),
+        "memory_read": sum(
+            "call " in line and "@PPDCV_MemRCallback" in line
+            for line in lines
+        ),
+        "memory_write": sum(
+            "call " in line and "@PPDCV_MemWCallback" in line
+            for line in lines
+        ),
+    }
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Compile a test with CoVer while preserving its LLVM IR."
@@ -68,8 +87,8 @@ def main() -> None:
         run(
             [
                 compiler,                           # mpicc or mpicxx
-                "-fPIC",                            # Position-independent code
-                "-g",                               # Preserve source debug information
+                "-fPIC",                            # OIC
+                "-g",
                 "-emit-llvm",                       # Generate LLVM bitcode
                 "-Xclang",
                 "-disable-O0-optnone",              # Allow LLVM passes at -O0
@@ -115,6 +134,9 @@ def main() -> None:
             full_exe,
         ]
     )
+
+    callbacks = count_callbacks(full_ir)
+    memory_total = callbacks["memory_read"] + callbacks["memory_write"]
     
     print(f"Instrumented IR: {full_ir}")
     print(f"Static report: {static_log}")
@@ -124,6 +146,11 @@ def main() -> None:
     print(f"Output directory: {out_dir}")
     print(f"Mode: {args.mode}")
     print(f"Compiler: {compiler}")
+
+    print(f"Function callbacks: {callbacks['function']}")
+    print(f"Memory-read callbacks: {callbacks['memory_read']}")
+    print(f"Memory-write callbacks: {callbacks['memory_write']}")
+    print(f"Total memory callbacks: {memory_total}")
 
 
 if __name__ == "__main__":
