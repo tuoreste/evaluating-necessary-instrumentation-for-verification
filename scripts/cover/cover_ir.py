@@ -7,12 +7,23 @@ import os
 import shlex
 import subprocess
 import tempfile
+import sys
 
-def run(command: list[object]) -> None:
+def run(command: list[object], log_file: Path | None = None,) -> None:
     """Print and execute an external command."""
     command = [str(part) for part in command]
     print("+", shlex.join(command))
-    subprocess.run(command, check=True)
+
+    if log_file is None:
+        subprocess.run(command, check=True)
+    else:
+        with log_file.open("w") as log:
+            subprocess.run(
+                command,
+                check=True,
+                stdout=log,
+                stderr=subprocess.STDOUT,
+            )
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -46,6 +57,11 @@ def main() -> None:
 
     cover_prefix = Path(os.environ.get("COVER_PREFIX", "/opt/cover"))
 
+    full_ir = out_dir / "full.ll"
+    static_log = out_dir / "static.log"
+    full_exe = out_dir / "full.exe"
+    link_ir = Path(__file__).resolve().with_name("link_ir.py")
+
     with tempfile.TemporaryDirectory(prefix="cover-ir-") as temp_directory:
         bitcode = Path(temp_directory) / "input.bc"
 
@@ -68,7 +84,41 @@ def main() -> None:
             ]
         )
 
+        run(
+            [
+                "opt",
+                f"--load-pass-plugin={cover_prefix / 'lib/DSA.so'}",
+                f"--load-pass-plugin={cover_prefix / 'lib/CoVerPlugin.so'}",
+                "-passes=function(sroa),instrumentIntrinsics,"
+                "contractVerifierPreCall,contractVerifierPostCall,"
+                "contractVerifierRelease,contractVerifierParam,"
+                "contractVerifierAlloc,contractPostProcess,"
+                "instrumentContracts",
+                f"-cover-instrument-type={args.mode}",
+                bitcode,
+                "-S",                   # Produce readable textual IR
+                "-o",
+                full_ir,                # Persistent instrumented IR
+            ],
+            log_file=static_log,
+        )
+
         print(f"Temporary bitcode created: {bitcode}")
+
+    run(
+        [
+            sys.executable,      # Use the current Python interpreter
+            link_ir,
+            "--linker",
+            compiler,
+            full_ir,
+            full_exe,
+        ]
+    )
+    
+    print(f"Instrumented IR: {full_ir}")
+    print(f"Static report: {static_log}")
+    print(f"Program: {full_exe}")
 
     print(f"Test: {test}")
     print(f"Output directory: {out_dir}")
