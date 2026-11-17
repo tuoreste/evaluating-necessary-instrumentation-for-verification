@@ -76,3 +76,4 @@ CoVerCoverage_*
 # outputs of our scripts and pass
 results/**/*.exe
 pass/build/
+!results/**/*.log
