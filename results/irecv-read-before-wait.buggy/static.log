@@ -1,0 +1,17 @@
+Running Contract Manager on Module: /tmp/cover-ir-wy4oszh0/input.bc
+CoVer: Parsed contracts after 0.004052082s
+## Contract violation detected! ##
+--> Function: MPI_Irecv
+--> Contract: CONTRACT{PRE { call_tag!(mpi_init) MSG "Missing Initialization call", param!(5:^=MPI_COMM_WORLD,!=NULL,!=MPI_COMM_NULL) MSG "Communicator is invalid", param!(0:!=NULL,!=MPI_IN_PLACE,!=MPI_BOTTOM) MSG "Parameter is null, MPI_IN_PLACE, or MPI_BOTTOM", alloc!(0) MSG "Buffer is not allocated" } POST { call_tag!(mpi_exit) MSG "Missing Finalization call", (no! (call_tag!(request_gen,$:6)) until! (call_tag!(req_complete,$:6)) | no! (call_tag!(request_gen,$:6)) until! (call_tag!(req_complete_noidx))) MSG "Double Request Use", (call_tag!(req_complete,$:6) | call_tag!(req_complete_noidx)) MSG "Request Leak", (no! (read!(*0)) until! (call_tag!(req_complete,$:6)) | no! (read!(*0)) until! (call_tag!(req_complete_noidx))) MSG "Local Data Race - Local read", (no! (call_tag!(buf_read,$:0)) until! (call_tag!(req_complete,$:6)) | no! (call_tag!(buf_read,$:0)) until! (call_tag!(req_complete_noidx))) MSG "Local Data Race - Local read by call", (no! (write!(*0)) until! (call_tag!(req_complete,$:6)) | no! (write!(*0)) until! (call_tag!(req_complete_noidx))) MSG "Local Data Race - Local write", (no! (call_tag!(buf_write,$:0)) until! (call_tag!(req_complete,$:6)) | no! (call_tag!(buf_write,$:0)) until! (call_tag!(req_complete_noidx))) MSG "Local Data Race - Local write by call" } TAGS { request_gen(6), buf_write(0) }}
+--> Postcondition Subformula Status: Violated
+    --> Formula String: (no!(read!(*0))until!(call_tag!(req_complete,$:6))|no!(read!(*0))until!(call_tag!(req_complete_noidx)))MSG"Local Data Race - Local read"
+    --> Message: Local Data Race - Local read
+    --> Error Info:
+        No children satisfied for subformula: (no!(read!(*0))until!(call_tag!(req_complete,$:6))|no!(read!(*0))until!(call_tag!(req_complete_noidx)))MSG"Local Data Race - Local read"
+        Error Info for child: no!(read!(*0))until!(call_tag!(req_complete,$:6))
+        Found load at /workspace/tests/data-race-read/irecv-read-before-wait.buggy.c:18:37 which is in conflict with MPI_Irecv at /workspace/tests/data-race-read/irecv-read-before-wait.buggy.c:17:9 before release
+        Error Info for child: no!(read!(*0))until!(call_tag!(req_complete_noidx))
+        Found load at /workspace/tests/data-race-read/irecv-read-before-wait.buggy.c:18:37 which is in conflict with MPI_Irecv at /workspace/tests/data-race-read/irecv-read-before-wait.buggy.c:17:9 before release
+
+CoVer: Total Tool Runtime 0.008106s
+

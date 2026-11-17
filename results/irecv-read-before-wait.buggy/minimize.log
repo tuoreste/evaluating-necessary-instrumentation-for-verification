@@ -1,0 +1,7 @@
+IR line  261  write  %3     source line   ?  static flag=false  -> not needed
+IR line  264  write  %4     source line   ?  static flag=false  -> not needed
+IR line  271  write  %6     source line   9  static flag=false  -> not needed
+IR line  275  read   %5     source line  12  static flag=false  -> not needed
+IR line  281  write  %6     source line  13  static flag=false  -> not needed
+IR line  291  read   %5     source line  15  static flag=false  -> not needed
+IR line  303  read   %6     source line  18  static flag=true   -> NEEDED

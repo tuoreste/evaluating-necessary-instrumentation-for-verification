@@ -1,0 +1,5 @@
+test,violation_with_full,mem_callbacks_total,mem_callbacks_needed,needed_source_lines,needed_all_flagged_by_static
+irecv-read-before-wait.buggy,True,7,1,18,True
+irecv-read-before-wait.correct,False,7,,,
+isend-write-before-wait.buggy,True,8,1,16,True
+isend-write-before-wait.correct,False,8,,,
