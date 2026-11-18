@@ -4,6 +4,11 @@
 #include "llvm/Plugins/PassPlugin.h" // handles entry for opt and clang to load our plugin
 #include "llvm/Support/raw_ostream.h" //lightweight print like errs, outs...
 
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Instructions.h"
+
+#include <vector>
+
 using namespace llvm;
 
 // namespace to avoid linkage clash with other plugins
@@ -16,7 +21,31 @@ namespace {
         }
 
         PreservedAnalyses run(Module &M, ModuleAnalysisManager &) {
-            errs() << "RemoveCallbacks: module " << M.getName() << "\n";
+            std::vector<CallInst *> callbacks;
+
+            for (Function &F : M) {
+                if (F.isDeclaration()) continue;
+
+                for (BasicBlock &BB : F) {
+                    for (Instruction &I : BB) {
+                        auto *CI = dyn_cast<CallInst>(&I);
+                        
+                        if (!CI) continue;
+
+                        Function *callee = CI->getCalledFunction();
+                        
+                        if (!callee) continue;
+
+                        StringRef name = callee->getName();
+
+                        if (name == "PPDCV_MemRCallback" || name == "PPDCV_MemWCallback") {
+                            callbacks.push_back(CI);
+                        }
+                    }
+                }
+            }
+
+            errs() << "RemoveCallbacks: found " << callbacks.size() << " memory callbacks\n";
 
             return PreservedAnalyses::all();
         }
