@@ -10,6 +10,9 @@
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Instructions.h"
 
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DebugLoc.h"
+
 #include <vector>
 
 #include <string>
@@ -84,6 +87,24 @@ namespace {
             }
 
             output << "id,kind,function,line,static_flag\n";
+
+            for (size_t id = 0; id < callbacks.size(); ++id) {
+                CallInst *CI = callbacks[id];
+                Function *callee = CI->getCalledFunction();
+
+                StringRef kind = callee->getName() == "PPDCV_MemRCallback" ? "R" : "W";
+
+                StringRef functionName = CI->getFunction()->getName();
+
+                DebugLoc debugLocation = CI->getDebugLoc();
+                unsigned sourceLine = debugLocation ? debugLocation.getLine() : 0;
+
+                auto *flag = dyn_cast<ConstantInt>(CI->getArgOperand(0));
+                unsigned staticFlag = flag && flag->isOne() ? 1 : 0;
+
+                output << id << "," << kind << "," << functionName << "," << sourceLine << "," << staticFlag << "\n";
+            }
+
             errs() << "RemoveCallbacks: wrote " << ListOut.getValue() << "\n";
 
             return PreservedAnalyses::all();
