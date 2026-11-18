@@ -22,6 +22,8 @@ using namespace llvm;
 
 // namespace to avoid linkage clash with other plugins
 namespace {
+    // Register -list-out=<file> as an opt command-line option.
+    // The pass uses this path to write the callback list in the agreed CSV format.
     static cl::opt<std::string> ListOut(
         "list-out",
         cl::desc("Write the memory callback list to a CSV file"),
@@ -63,8 +65,6 @@ namespace {
 
             errs() << "RemoveCallbacks: found " << callbacks.size() << " memory callbacks\n";
 
-            // Register -list-out=<file> as an opt command-line option.
-            // The pass uses this path to write the callback list in the agreed CSV format.
             if (ListOut.empty()) {
                 errs() << "RemoveCallbacks: no -list-out file provided\n";
                 return PreservedAnalyses::all();
@@ -104,11 +104,10 @@ namespace {
 
                 output << id << "," << kind << "," << functionName << "," << sourceLine << "," << staticFlag << "\n";
             }
-
             errs() << "RemoveCallbacks: wrote " << ListOut.getValue() << "\n";
 
             return PreservedAnalyses::all();
-        };
+        }
     };
 }
 

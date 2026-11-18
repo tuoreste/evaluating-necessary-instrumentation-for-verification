@@ -1,6 +1,3 @@
-# pass
-Our LLVM pass that lists and removes CoVer's read/write callbacks.
-
 # RemoveCallbacks LLVM pass
 
 This LLVM module pass finds CoVer's memory-read and memory-write callbacks in an instrumented `full.ll`.
