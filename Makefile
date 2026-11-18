@@ -12,7 +12,7 @@ BUGBENCH_REPO := mpi-bugbench
 COVER_URL ?= https://github.com/tudasc/CoVer.git
 BUGBENCH_URL ?= https://git-ce.rwth-aachen.de/hpc-public/mpi-bugbench.git
 
-.PHONY: help check start sources deps build cover-source bugbench-source errors shell clean clean-all
+.PHONY: help check start sources deps build cover-source bugbench-source errors shell pass clean clean-all
 
 BUILD_JOBS ?= 1
 
@@ -22,6 +22,7 @@ help:
 	'	make help		Show commands' \
 	'	make check		Check host requirements' \
 	'	make start		Start project setup' \
+	'	make pass		Build the LLVM pass' \
 	'	make sources	Clone missing external repositories'
 
 check:
@@ -83,6 +84,13 @@ build: check sources
 		$(EXTERNAL_DIR)/$(COVER_REPO) \
 		2>&1 | tee $(BUILD_LOG)
 	@echo "CoVer built successfully."
+
+pass: check
+	@docker run --rm \
+		-v "$(CURDIR):/workspace" \
+		-w /workspace \
+		cover-lab:latest \
+		bash -lc 'cmake -S pass -B pass/build -DLLVM_DIR="$$(llvm-config --cmakedir)" && cmake --build pass/build'
 
 errors:
 	@test -f $(BUILD_LOG) || { echo "No build log found."; exit 1; }
