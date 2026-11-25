@@ -16,6 +16,19 @@ from scripts.MBButils import parse_one_code
 def reports_violation(log_path: Path) -> bool:
     return "Contract violation detected" in log_path.read_text(errors="replace")
 
+def classify_runtime(log_path: Path, exit_code: int) -> str:
+    if exit_code != 0:
+        return "runtime_error"
+
+    output = log_path.read_text(errors="replace")
+    if "## Contract violation detected! ##" not in output:
+        return "OK"
+
+    if "for Formula (message or contract string): Local Data Race" in output:
+        return "LocalConcurrency"
+
+    return "other_violation"
+
 def read_case(source: Path) -> tuple[str, int]:
     case, = parse_one_code(str(source))
     command = shlex.split(case["cmd"])
@@ -35,7 +48,7 @@ def read_case(source: Path) -> tuple[str, int]:
     expected = "OK" if case["expect"] == "OK" else case["detail"]
     return expected, ranks
 
-def run_case(source: Path, out: Path, ranks: int) -> int:
+def run_case(source: Path, out: Path, ranks: int, expected: str) -> int:
     out.mkdir(parents=True, exist_ok=True)
 
     build_log = out / "build.log"
@@ -69,7 +82,12 @@ def run_case(source: Path, out: Path, ranks: int) -> int:
             )
         print(f"MPI exit status: {result.returncode}")
 
-        print(f"Runtime violation reported: {reports_violation(runtime_log)}")
+        actual = classify_runtime(runtime_log, result.returncode)
+        print(f"CoVer runtime result: {actual}")
+        if actual == "runtime_error":
+            print("Matches BugBench: not scored")
+        else:
+            print(f"Matches BugBench: {actual == expected}")
 
         return result.returncode
     except subprocess.TimeoutExpired:
@@ -97,7 +115,7 @@ def main() -> int:
 
     print(f"BugBench expects: {expected}")
     print(f"MPI ranks from header: {ranks}")
-    return run_case(source, args.out_dir.resolve(), ranks)
+    return run_case(source, args.out_dir.resolve(), ranks, expected)
 
 
 if __name__ == "__main__":
