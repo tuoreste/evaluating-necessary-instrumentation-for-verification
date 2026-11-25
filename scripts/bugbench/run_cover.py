@@ -5,10 +5,35 @@ import os
 from pathlib import Path
 import subprocess
 
+import shlex
+import sys
+
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "external" / "mpi-bugbench"))
+
+from scripts.MBButils import parse_one_code
 
 def reports_violation(log_path: Path) -> bool:
     return "Contract violation detected" in log_path.read_text(errors="replace")
+
+def read_case(source: Path) -> tuple[str, int]:
+    case, = parse_one_code(str(source))
+    command = shlex.split(case["cmd"])
+
+    if (
+        len(command) != 4
+        or command[0] not in {"mpirun", "mpiexec"}
+        or command[1] not in {"-np", "-n"}
+        or command[3] != "${EXE}"
+    ):
+        raise ValueError(f"Unexpected BugBench command: {case['cmd']}")
+
+    ranks = int(command[2])
+    if ranks < 1:
+        raise ValueError("MPI rank count must be positive")
+
+    expected = "OK" if case["expect"] == "OK" else case["detail"]
+    return expected, ranks
 
 def run_case(source: Path, out: Path, ranks: int) -> int:
     out.mkdir(parents=True, exist_ok=True)
@@ -59,14 +84,20 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run one MPI-BugBench case with CoVer.")
     parser.add_argument("source", type=Path)
     parser.add_argument("out_dir", type=Path)
-    parser.add_argument("--ranks", type=int, required=True)
     args = parser.parse_args()
 
     source = args.source.resolve()
     if not source.is_file():
         parser.error(f"Test source does not exist: {source}")
 
-    return run_case(source, args.out_dir.resolve(), args.ranks)
+    try:
+        expected, ranks = read_case(source)
+    except ValueError as error:
+        parser.error(str(error))
+
+    print(f"BugBench expects: {expected}")
+    print(f"MPI ranks from header: {ranks}")
+    return run_case(source, args.out_dir.resolve(), ranks)
 
 
 if __name__ == "__main__":
