@@ -1,0 +1,34 @@
+test,ranks,expected,actual,match,outcome,static_violation,expected_lines,reported_lines,line_match,exit_code
+COLL/Correct-mpi_allgather-001.c,2,OK,OK,True,clean,False,,,,0
+COLL/Correct-mpi_allgather-mpi_allgather-001.c,2,OK,OK,True,clean,False,,,,0
+COLL/Correct-mpi_bcast-001.c,2,OK,OK,True,clean,False,,,,0
+COLL/Correct-mpi_cart_create-001.c,2,OK,OK,True,clean,False,,,,0
+COLL/Correct-mpi_cart_create-mpi_cart_get-001.c,2,OK,OK,True,clean,False,,,,0
+COLL/LocalConcurrency-mpi_iallreduce-001.c,2,LocalConcurrency,OK,False,miss,True,40,,,0
+P2P/CallOrdering-mpi_send-mpi_recv-001.c,2,OK,OK,True,clean,False,,,,0
+P2P/Correct-mpi_recv-001.c,2,OK,OK,True,clean,False,,,,0
+P2P/Correct-mpi_send-001.c,2,OK,OK,True,clean,False,,,,0
+P2P/Correct-mpi_send-002.c,2,OK,OK,True,clean,False,,,,0
+P2P/InvalidParam-Buffer-mpi_sendrecv-007.c,2,OK,runtime_error,,runtime_error,True,,,,139
+P2P/LocalConcurrency-mpi_irecv-001.c,2,LocalConcurrency,LocalConcurrency,True,hit,True,39 40,38 39,True,0
+P2P/LocalConcurrency-receive-mpi_irecv-001.c,2,LocalConcurrency,OK,False,miss,True,37 38 39,,,0
+RMA/Correct-Rank-001.c,2,OK,OK,True,clean,False,,,,0
+RMA/Correct-fence-accumulate_accumulate-001.c,3,OK,OK,True,clean,False,,,,0
+RMA/Correct-fence-accumulate_bufread-001.c,2,OK,OK,True,clean,False,,,,0
+RMA/Correct-fence-get_bufwrite-001.c,3,OK,OK,True,clean,False,,,,0
+RMA/Correct-fence-get_get-001.c,2,OK,OK,True,clean,False,,,,0
+RMA/Correct-fence-get_localbufwrite-001.c,3,OK,OK,True,clean,False,,,,0
+RMA/Correct-fence-put_bufread-001.c,2,OK,OK,True,clean,False,,,,0
+RMA/Correct-lock-put_put-001.c,3,OK,OK,True,clean,False,,,,0
+RMA/Correct-lockall-accumulate_put-001.c,3,OK,OK,True,clean,False,,,,0
+RMA/Correct-lockall-get_put-001.c,3,OK,OK,True,clean,False,,,,0
+RMA/Correct-lockallflush-accumulate_get-001.c,2,OK,OK,True,clean,False,,,,0
+RMA/Correct-lockallflush-bufread_get-001.c,2,OK,OK,True,clean,False,,,,0
+RMA/Correct-lockallflush-put_get-001.c,2,OK,OK,True,clean,False,,,,0
+RMA/Correct-lockunlock-get_bufwrite-001.c,2,OK,OK,True,clean,False,,,,0
+RMA/Correct-rmarequest-rget_bufwrite-001.c,2,OK,OK,True,clean,False,,,,0
+RMA/LocalConcurrency-fence-get_get-001.c,2,LocalConcurrency,other_violation,False,miss,True,44 45 46 47,44 46,True,0
+RMA/LocalConcurrency-lockallflush-accumulate_get-001.c,2,LocalConcurrency,other_violation,False,miss,True,44 45 46 47,44 46,True,0
+RMA/LocalConcurrency-lockallflush-put_get-001.c,2,LocalConcurrency,other_violation,False,miss,True,44 45 46 47,44 46,True,0
+RMA/LocalConcurrency-lockunlock-get_bufwrite-001.c,2,LocalConcurrency,other_violation,False,miss,True,44 45 46,44 46,True,0
+RMA/LocalConcurrency-rmarequest-rget_bufwrite-001.c,2,LocalConcurrency,LocalConcurrency,True,hit,True,45 46 47,45 47,True,0
